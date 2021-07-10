@@ -2,3 +2,6 @@ name: ConfigMenu
 author: Flowsqy
 version: "${project.version}"
 main: fr.flowsqy.configmenu.ConfigMenuPlugin
+depend:
+  - DynamicCommand
+  - AbstractMenu
