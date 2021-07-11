@@ -1,6 +1,7 @@
 package fr.flowsqy.configmenu.commands;
 
 import fr.flowsqy.configmenu.ConfigMenuPlugin;
+import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -18,13 +19,16 @@ public class ReloadCommand implements CommandExecutor {
         assert reloadCommand != null;
         reloadCommand.setTabCompleter(EMPTY_TAB_COMPLETER);
         reloadCommand.setExecutor(this);
-        reloadMessage = messages.getString("commands.reload");
+        final String rawReloadMessage = messages.getString("commands.reload");
+        reloadMessage = rawReloadMessage == null ? null : ChatColor.translateAlternateColorCodes('&', rawReloadMessage);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         //TODO Link to reload method
-        sender.sendMessage(reloadMessage);
+        if(reloadMessage != null){
+            sender.sendMessage(reloadMessage);
+        }
         return true;
     }
 
