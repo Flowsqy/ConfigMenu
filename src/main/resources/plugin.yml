@@ -5,3 +5,12 @@ main: fr.flowsqy.configmenu.ConfigMenuPlugin
 depend:
   - DynamicCommand
   - AbstractMenu
+commands:
+  configmenureload:
+    usage: /<command>
+    description: Reload the all the menu configurations
+    permission: configmenu.command.reload
+    aliases:
+      - cmrl
+      - configmenurl
+      - cmreload
