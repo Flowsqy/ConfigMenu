@@ -1,6 +1,6 @@
 package fr.flowsqy.configmenu;
 
-import fr.flowsqy.configmenu.commands.ReloadCommand;
+import fr.flowsqy.configmenu.commands.internal.ReloadCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
