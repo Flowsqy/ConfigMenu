@@ -8,6 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class ReloadCommand implements CommandExecutor {
 
@@ -24,7 +25,9 @@ public class ReloadCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        //TODO Link to reload method
+        final ConfigMenuPlugin plugin = JavaPlugin.getPlugin(ConfigMenuPlugin.class);
+        plugin.unload();
+        plugin.load(true);
         if (reloadMessage != null) {
             sender.sendMessage(reloadMessage);
         }

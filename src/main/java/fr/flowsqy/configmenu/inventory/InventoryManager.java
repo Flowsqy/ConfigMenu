@@ -20,7 +20,8 @@ import java.util.logging.Logger;
 
 public class InventoryManager {
 
-    public List<CommandManager.LinkedCommand> setup(Plugin plugin, Logger logger, File commandFile, File rootFolder, List<CommandManager.UnlinkedCommand> unlinkedCommands) {
+    public List<CommandManager.LinkedCommand> setup(Plugin plugin, File commandFile, File rootFolder, List<CommandManager.UnlinkedCommand> unlinkedCommands) {
+        final Logger logger = plugin.getLogger();
         final MenuFactory factory = new MenuFactory(plugin);
         final List<CommandManager.LinkedCommand> linkedCommands = new ArrayList<>();
         final HashMap<InventoryLocation, EventInventory> inventoryCache = new HashMap<>();
