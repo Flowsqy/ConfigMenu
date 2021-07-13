@@ -13,8 +13,8 @@
 #  permission-message: [permission-message]
 #
 #
-# [] -> Optional
 # <> -> Required
+# [] -> Optional
 #
 # Where :
 # <command-name> is a valid command name
@@ -40,4 +40,28 @@
 # inventories/second_inventory.yml:inventory
 #   -> plugin will search for the section 'inventory' in the file plugins/ConfigMenu/inventories/second_inventory.yml
 #
-# TODO Add inventory creation documentation
+#
+# Inventory section schema
+#
+#<inventory-id>:
+#  name: [name]
+#  line: [number-of-line]
+#  items:
+#    type: <material>
+#    name: [name]
+#    action: [inventory-path]
+#    lore:
+#      - [lore-1]
+#      - [lore-2]
+#      - ...
+#    amount: [amount]
+#
+# Where:
+# <inventory-id> is the inventory id (see above)
+# [name] is the name of the inventory
+# [number-of-line] is the number of line of the inventory (between 1 and 6, default 1)
+# <material> is the material to use (see https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html)
+# [name] is the name of the item
+# [inventory-path] is a valid inventory path (see above)
+# [lore-1] [lore-2] ... are the line of description of the item
+# [amount] is an integer between 1 and 64 for the quantity of the item
