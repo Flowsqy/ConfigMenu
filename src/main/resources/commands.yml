@@ -48,27 +48,29 @@
 #  line: [number-of-line]
 #  items:
 #    <item-key>:
-#      type: <material>
-#      name: [name]
+#      item:
+#        type: <material>
+#        name: [name]
+#        lore:
+#          - [lore-1]
+#          - [lore-2]
+#          - ...
+#        amount: [amount]
 #      action: [inventory-path]
-#      lore:
-#        - [lore-1]
-#        - [lore-2]
-#        - ...
-#      amount: [amount]
 #      slots:
 #        - <slot-1>
 #        - <slot-2>
 #        - ...
 #    <item-key-2>:
-#      type: <material>
-#      name: [name]
+#      item:
+#        type: <material>
+#        name: [name]
+#        lore:
+#          - [lore-1]
+#          - [lore-2]
+#          - ...
+#        amount: [amount]
 #      action: [inventory-path]
-#      lore:
-#        - [lore-1]
-#        - [lore-2]
-#        - ...
-#      amount: [amount]
 #      slots:
 #        - <slot-1>
 #        - <slot-2>
