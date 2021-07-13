@@ -56,6 +56,10 @@
 #        - [lore-2]
 #        - ...
 #      amount: [amount]
+#      slots:
+#        - <slot-1>
+#        - <slot-2>
+#        - ...
 #    <item-key-2>:
 #      type: <material>
 #      name: [name]
@@ -65,6 +69,10 @@
 #        - [lore-2]
 #        - ...
 #      amount: [amount]
+#      slots:
+#        - <slot-1>
+#        - <slot-2>
+#        - ...
 #    ...
 #
 # Where:
@@ -77,3 +85,4 @@
 # [inventory-path] is a valid inventory path (see above)
 # [lore-1] [lore-2] ... are the line of description of the item
 # [amount] is an integer between 1 and 64 for the quantity of the item
+# <slot-1> <slot-2> ... are integer to determine where the item will be in the inventory (between 0 and line * 9 - 1)
