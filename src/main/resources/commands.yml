@@ -47,16 +47,28 @@
 #  name: [name]
 #  line: [number-of-line]
 #  items:
-#    type: <material>
-#    name: [name]
-#    action: [inventory-path]
-#    lore:
-#      - [lore-1]
-#      - [lore-2]
-#      - ...
-#    amount: [amount]
+#    <item-key>:
+#      type: <material>
+#      name: [name]
+#      action: [inventory-path]
+#      lore:
+#        - [lore-1]
+#        - [lore-2]
+#        - ...
+#      amount: [amount]
+#    <item-key-2>:
+#      type: <material>
+#      name: [name]
+#      action: [inventory-path]
+#      lore:
+#        - [lore-1]
+#        - [lore-2]
+#        - ...
+#      amount: [amount]
+#    ...
 #
 # Where:
+# <item-key> is a string that is use like a unique identifier (can be what you want)
 # <inventory-id> is the inventory id (see above)
 # [name] is the name of the inventory
 # [number-of-line] is the number of line of the inventory (between 1 and 6, default 1)
