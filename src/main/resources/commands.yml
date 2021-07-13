@@ -1,0 +1,43 @@
+# File where commands are registered
+#
+#
+# Schema:
+#
+#<command_name>:
+#  inventory: <inventory-path>
+#  aliases:
+#    - [alias-1]
+#    - [alias-2]
+#    - ...
+#  permission: [permission]
+#  permission-message: [permission-message]
+#
+#
+# [] -> Optional
+# <> -> Required
+#
+# Where :
+# <command-name> is a valid command name
+# <inventory-path> is a valid inventory path (see below)
+# [alias-1] [alias-2] ... are all the aliases for the command (remove aliases section to set no aliases)
+# [permission] is the permission of the command (remove permission section to set no permission)
+# [permission-message] is the message that is shown when an user process the command without permission
+#   (Only set if there is a permission set, remove permission-message section to keep he default one)
+#
+#
+#
+# An inventory path has two valid patterns:
+# 1. <inventory-id>
+#   The plugin will search for an inventory section with the id <inventory-id> in the current file
+# 2. <file-path>:<inventory-id>
+#   The plugin will search for an inventory section with the id <inventory-id> in the file <file-path>, relative to the plugin's folder
+#
+# Examples:
+#
+# main-inventory:
+#   -> plugin will search for the section 'main-inventory' in the file commands.yml (because it's the current file)
+#
+# inventories/second_inventory.yml:inventory
+#   -> plugin will search for the section 'inventory' in the file plugins/ConfigMenu/inventories/second_inventory.yml
+#
+# TODO Add inventory creation documentation
