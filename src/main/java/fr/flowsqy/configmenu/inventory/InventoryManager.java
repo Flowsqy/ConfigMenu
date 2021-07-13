@@ -20,14 +20,26 @@ import java.util.logging.Logger;
 
 public class InventoryManager {
 
-    public List<CommandManager.LinkedCommand> setup(Plugin plugin, Logger logger, File rootFolder, List<CommandManager.UnlinkedCommand> unlinkedCommands) {
+    public List<CommandManager.LinkedCommand> setup(Plugin plugin, Logger logger, File commandFile, File rootFolder, List<CommandManager.UnlinkedCommand> unlinkedCommands) {
         final MenuFactory factory = new MenuFactory(plugin);
         final List<CommandManager.LinkedCommand> linkedCommands = new ArrayList<>();
-        final HashMap<String, EventInventory> inventoryCache = new HashMap<>();
+        final HashMap<InventoryLocation, EventInventory> inventoryCache = new HashMap<>();
+        final HashMap<InventoryLocation, List<ToLinkItem>> toLinkInventories = new HashMap<>();
         for (CommandManager.UnlinkedCommand unlinkedCommand : unlinkedCommands) {
+            final InventoryLocation inventoryLocation = parseInventoryLocation(unlinkedCommand.inventoryPath(), logger, rootFolder, commandFile);
+            if (inventoryLocation == null) {
+                continue;
+            }
             final EventInventory inventory = inventoryCache.getOrDefault(
-                    unlinkedCommand.inventoryPath(),
-                    createInventory(factory, logger, rootFolder, unlinkedCommand.inventoryPath(), inventoryCache)
+                    inventoryLocation,
+                    createInventory(
+                            factory,
+                            logger,
+                            rootFolder,
+                            inventoryLocation,
+                            inventoryCache,
+                            toLinkInventories
+                    )
             );
             if (inventory == null)
                 continue;
@@ -36,7 +48,57 @@ public class InventoryManager {
         return linkedCommands;
     }
 
-    public EventInventory createInventory(MenuFactory factory, Logger logger, File rootFolder, String inventoryPath, HashMap<String, EventInventory> inventoryCache) {
+    private EventInventory createInventory(
+            MenuFactory factory,
+            Logger logger,
+            File rootFolder,
+            InventoryLocation inventoryLocation,
+            HashMap<InventoryLocation, EventInventory> inventoryCache,
+            HashMap<InventoryLocation, List<ToLinkItem>> toLinkInventories
+    ) {
+        if (inventoryLocation == null) {
+            return null;
+        }
+        // Check configuration section
+        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(inventoryLocation.file());
+        final ConfigurationSection inventorySection = configuration.getConfigurationSection(inventoryLocation.id());
+        if (inventorySection == null) {
+            logger.log(Level.WARNING, "The inventory section '" + inventoryLocation.id() + "' does not exist in file " + inventoryLocation.file().getPath());
+            return null;
+        }
+
+        toLinkInventories.put(inventoryLocation, new ArrayList<>());
+        // Inventory deserialization recursively
+        final EventInventory inventory = EventInventory.deserialize(
+                inventorySection,
+                factory,
+                new RecursiveRegisterHandler(
+                        factory,
+                        logger,
+                        rootFolder,
+                        inventoryLocation,
+                        inventoryCache,
+                        toLinkInventories,
+                        inventorySection
+                )
+        );
+
+        final List<ToLinkItem> toLinkItems = toLinkInventories.remove(inventoryLocation);
+        if (inventory != null) {
+            inventoryCache.put(inventoryLocation, inventory);
+            for (ToLinkItem toLinkItem : toLinkItems) {
+                toLinkItem.inventory().register(toLinkItem.builder(), new OpenInventoryConsumer(inventory), toLinkItem.slots());
+            }
+        } else {
+            for (ToLinkItem toLinkItem : toLinkItems) {
+                toLinkItem.inventory().register(toLinkItem.builder(), toLinkItem.slots());
+            }
+        }
+
+        return inventory;
+    }
+
+    private InventoryLocation parseInventoryLocation(String inventoryPath, Logger logger, File rootFolder, File currentFile) {
         // Path parsing
         final File file;
         final String inventoryId;
@@ -56,38 +118,30 @@ public class InventoryManager {
                 logger.log(Level.WARNING, "The id '" + pathParts[1] + "' is incorrect (blank, no inventory id specified)");
                 return null;
             }
-            file = new File(rootFolder, pathParts[0].replace('/', File.separatorChar));
-            inventoryId = pathParts[1];
+            file = new File(rootFolder, pathParts[0].trim().replace('/', File.separatorChar));
+            inventoryId = pathParts[1].trim();
         } else {
-            inventoryId = inventoryPath;
-            file = new File(rootFolder, "inventories.yml");
+            inventoryId = inventoryPath.trim();
+            file = currentFile;
         }
 
-        // File loading
+        // File checking
         if (!file.exists()) {
             logger.log(Level.WARNING, "The file '" + file.getPath() + "' does not exist");
             return null;
         }
-        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-        final ConfigurationSection inventorySection = configuration.getConfigurationSection(inventoryId);
-        if (inventorySection == null) {
-            logger.log(Level.WARNING, "The inventory section '" + inventoryId + "' does not exist in file " + file.getPath());
+        if (!file.isFile()) {
+            logger.log(Level.WARNING, "The path '" + file.getPath() + "' does not refer to a file");
             return null;
         }
 
-        // Inventory deserialization recursively
-        return EventInventory.deserialize(
-                inventorySection,
-                factory,
-                new RecursiveRegisterHandler(
-                        factory,
-                        logger,
-                        rootFolder,
-                        inventorySection,
-                        inventoryCache,
-                        inventoryPath
-                )
-        );
+        return new InventoryLocation(file, inventoryId);
+    }
+
+    private record InventoryLocation(File file, String id) {
+    }
+
+    private record ToLinkItem(EventInventory inventory, ItemBuilder builder, List<Integer> slots) {
     }
 
     private record OpenInventoryConsumer(EventInventory inventory) implements Consumer<InventoryClickEvent> {
@@ -103,41 +157,64 @@ public class InventoryManager {
         private final MenuFactory factory;
         private final Logger logger;
         private final File rootFolder;
+        private final InventoryLocation currentLocation;
+        private final HashMap<InventoryLocation, EventInventory> inventoryCache;
+        private final HashMap<InventoryLocation, List<ToLinkItem>> toLinkInventories;
         private final ConfigurationSection section;
-        private final HashMap<String, EventInventory> inventoryCache;
-        private final String currentPath;
 
-        public RecursiveRegisterHandler(MenuFactory factory, Logger logger, File rootFolder, ConfigurationSection section, HashMap<String, EventInventory> inventoryCache, String currentPath) {
+        public RecursiveRegisterHandler(
+                MenuFactory factory,
+                Logger logger,
+                File rootFolder,
+                InventoryLocation currentLocation,
+                HashMap<InventoryLocation, EventInventory> inventoryCache,
+                HashMap<InventoryLocation, List<ToLinkItem>> toLinkInventories,
+                ConfigurationSection section
+        ) {
             this.factory = factory;
             this.logger = logger;
             this.rootFolder = rootFolder;
-            this.section = section;
+            this.currentLocation = currentLocation;
             this.inventoryCache = inventoryCache;
-            this.currentPath = currentPath;
+            this.toLinkInventories = toLinkInventories;
+            this.section = section;
         }
 
         @Override
         public void handle(EventInventory inventory, String id, ItemBuilder item, List<Integer> slots) {
-            final String inventoryPath = section.getString("items." + id + ".action");
-            final EventInventory eventInventory;
-            if (inventoryPath != null) {
-                if (currentPath.equals(inventoryPath)) {
-                    eventInventory = null;
-                    logger.log(Level.WARNING, "Try to open the currently opened inventory in " + currentPath);
+            // Parse path
+            final InventoryLocation inventoryLocation = parseInventoryLocation(
+                    section.getString("items." + id + ".action"),
+                    logger,
+                    rootFolder,
+                    currentLocation.file()
+            );
+            if (inventoryLocation != null) {
+                if (inventoryLocation.equals(currentLocation)) {
+                    logger.log(Level.WARNING, "Try to open the currently opened inventory in " + inventoryLocation.file().getPath() + ", id " + inventoryLocation.id());
                 } else {
-                    eventInventory = inventoryCache.getOrDefault(
-                            inventoryPath,
-                            createInventory(factory, logger, rootFolder, inventoryPath, inventoryCache)
-                    );
+                    final List<ToLinkItem> toLinkItems = toLinkInventories.get(inventoryLocation);
+                    // Report link operation to avoid infinite loop (because inventory is already in deserialize process)
+                    if (toLinkItems != null) {
+                        toLinkItems.add(new ToLinkItem(inventory, item, slots));
+                    } else {
+                        final EventInventory eventInventory = inventoryCache.getOrDefault(
+                                inventoryLocation,
+                                createInventory(
+                                        factory,
+                                        logger,
+                                        rootFolder,
+                                        inventoryLocation,
+                                        inventoryCache,
+                                        toLinkInventories
+                                )
+                        );
+                        inventory.register(item, new OpenInventoryConsumer(eventInventory), slots);
+                        return;
+                    }
                 }
-            } else {
-                eventInventory = null;
             }
-            if (eventInventory == null) {
-                inventory.register(item, slots);
-            } else {
-                inventory.register(item, new OpenInventoryConsumer(eventInventory), slots);
-            }
+            inventory.register(item, slots);
         }
     }
 
