@@ -149,7 +149,7 @@ public class InventoryManager {
 
         @Override
         public void accept(InventoryClickEvent event) {
-            inventory.open((Player) event.getWhoClicked());
+            inventory.open((Player) event.getWhoClicked(), inventory.toString());
         }
     }
 
