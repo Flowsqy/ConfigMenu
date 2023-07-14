@@ -39,6 +39,11 @@ public class ClickListenerHandler {
                 onClickListener = compose(onClickListener, new MessageSenderClickListener(message));
             }
         }
+
+        if (data.close()) {
+            onClickListener = compose(onClickListener, new CloseClickListener());
+        }
+
         return onClickListener;
     }
 
