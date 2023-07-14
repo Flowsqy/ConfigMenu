@@ -1,18 +1,21 @@
 package fr.flowsqy.configmenu;
 
-import fr.flowsqy.configmenu.commands.CommandManager;
-import fr.flowsqy.configmenu.commands.internal.ReloadCommand;
-import fr.flowsqy.configmenu.inventory.InventoryManager;
+import fr.flowsqy.abstractmenu.inventory.EventInventory;
+import fr.flowsqy.configmenu.command.*;
+import fr.flowsqy.configmenu.command.internal.ReloadCommand;
+import fr.flowsqy.configmenu.config.ConfigLoader;
+import fr.flowsqy.configmenu.inventory.InventoryLoader;
+import fr.flowsqy.configmenu.inventory.InventoryLocation;
 import fr.flowsqy.dynamiccommand.DynamicCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,8 +27,9 @@ public class ConfigMenuPlugin extends JavaPlugin {
     public void onEnable() {
         final Logger logger = getLogger();
         final File dataFolder = getDataFolder();
+        final ConfigLoader configLoader = new ConfigLoader();
 
-        if (!checkDataFolder(dataFolder)) {
+        if (!configLoader.checkDataFolder(dataFolder)) {
             logger.log(Level.WARNING, "Can not write in the directory : " + dataFolder.getAbsolutePath());
             logger.log(Level.WARNING, "Disable the plugin");
             Bukkit.getPluginManager().disablePlugin(this);
@@ -36,7 +40,9 @@ public class ConfigMenuPlugin extends JavaPlugin {
 
         load(false);
 
-        new ReloadCommand(this, initFile(dataFolder, "messages.yml"));
+        final String messagesFileName = "messages.yml";
+        final YamlConfiguration messages = YamlConfiguration.loadConfiguration(configLoader.initFile(dataFolder, Objects.requireNonNull(getResource(messagesFileName)), messagesFileName));
+        new ReloadCommand(this, messages);
     }
 
     @Override
@@ -49,36 +55,22 @@ public class ConfigMenuPlugin extends JavaPlugin {
     }
 
     public void load(boolean sync) {
+        final ConfigLoader configLoader = new ConfigLoader();
         final String commandsFileName = "commands.yml";
-        final List<CommandManager.UnlinkedCommand> unlinkedCommandList = commandManager.setup(this, initFile(getDataFolder(), commandsFileName));
-        final List<CommandManager.LinkedCommand> linkedCommands = new InventoryManager().setup(
-                this,
-                new File(getDataFolder(), commandsFileName),
-                getDataFolder(),
-                unlinkedCommandList
-        );
+        final CommandsLoader commandsLoader = new CommandsLoader();
+        commandsLoader.load(configLoader, this, commandsFileName);
+        final List<UnlinkedCommand> commands = commandsLoader.getCommands(this, getDataFolder());
+        final InventoryLocation[] locations = commands.stream().map(UnlinkedCommand::inventoryLocation).toArray(InventoryLocation[]::new);
+        final InventoryLoader inventoryLoader = new InventoryLoader();
+        inventoryLoader.addToProcess(locations);
+        final Map<InventoryLocation, Optional<EventInventory>> inventories = inventoryLoader.load(this, getDataFolder());
+        inventoryLoader.linkAll();
+        final CommandsLinker linker = new CommandsLinker();
+        final List<LinkedCommand> linkedCommands = linker.link(inventories, commands);
         commandManager.register(this, linkedCommands);
         if (sync) {
             DynamicCommand.synchronizeTabCompleter();
         }
-    }
-
-    private boolean checkDataFolder(File dataFolder) {
-        if (dataFolder.exists())
-            return dataFolder.canWrite();
-        return dataFolder.mkdirs();
-    }
-
-    private YamlConfiguration initFile(File dataFolder, String fileName) {
-        final File file = new File(dataFolder, fileName);
-        if (!file.exists()) {
-            try {
-                Files.copy(Objects.requireNonNull(getResource(fileName)), file.toPath());
-            } catch (IOException ignored) {
-            }
-        }
-
-        return YamlConfiguration.loadConfiguration(file);
     }
 
 }
