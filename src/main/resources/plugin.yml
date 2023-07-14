@@ -1,7 +1,7 @@
-name: ConfigMenu
-author: Flowsqy
+name: "ConfigMenu"
+author: "Flowsqy"
 version: "${project.version}"
-main: fr.flowsqy.configmenu.ConfigMenuPlugin
+main: "fr.flowsqy.configmenu.ConfigMenuPlugin"
 api-version: "1.16"
 depend:
   - DynamicCommand
@@ -9,8 +9,8 @@ depend:
 commands:
   configmenureload:
     usage: /<command>
-    description: Reload the all the menu configurations
-    permission: configmenu.command.reload
+    description: "Reload all menu configurations"
+    permission: "configmenu.command.reload"
     aliases:
       - cmrl
       - configmenurl
