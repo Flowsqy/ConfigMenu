@@ -40,7 +40,9 @@ public class CMRegisterHandler implements EventInventory.RegisterHandler {
             logger.warning(e.getMessage());
         }
 
-        final ActionData actionData = new ActionData(newLocation);
+        final String messageId = currentSection.getString("items." + id + ".message");
+
+        final ActionData actionData = new ActionData(newLocation, messageId);
         final UnregisteredItem unregisteredItem = new UnregisteredItem(inventory, item, slots, actionData);
         inventoryLoader.queueItem(unregisteredItem);
     }

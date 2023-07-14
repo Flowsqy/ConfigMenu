@@ -69,7 +69,7 @@ public class ConfigMenuPlugin extends JavaPlugin {
         final InventoryLoader inventoryLoader = new InventoryLoader();
         inventoryLoader.addToProcess(locations);
         final Map<InventoryLocation, Optional<EventInventory>> inventories = inventoryLoader.load(this, getDataFolder());
-        inventoryLoader.linkAll();
+        inventoryLoader.linkAll(messageRegistry);
         final CommandsLinker linker = new CommandsLinker();
         final List<LinkedCommand> linkedCommands = linker.link(inventories, commands);
         commandManager.register(this, linkedCommands);

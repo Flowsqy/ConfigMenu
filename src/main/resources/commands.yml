@@ -57,6 +57,7 @@
 #          - ...
 #        amount: [amount]
 #      inventory: [inventory-path]
+#      message: [message-id]
 #      slots:
 #        - <slot-1>
 #        - <slot-2>
@@ -85,6 +86,7 @@
 # <material> is the material to use (see https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html)
 # [name] is the name of the item
 # [inventory-path] is a valid inventory path (see above)
+# [message-id] is an identifier specified in the file 'message-registry.lang'
 # [lore-1] [lore-2] ... are the line of description of the item
 # [amount] is an integer between 1 and 64 for the quantity of the item
 # <slot-1> <slot-2> ... are integer to determine where the item will be in the inventory (between 0 and line * 9 - 1)

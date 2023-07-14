@@ -2,6 +2,7 @@ package fr.flowsqy.configmenu.inventory;
 
 import fr.flowsqy.abstractmenu.factory.MenuFactory;
 import fr.flowsqy.abstractmenu.inventory.EventInventory;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -99,8 +100,8 @@ public class InventoryLoader {
         unregisteredItems.add(unregisteredItem);
     }
 
-    public void linkAll() {
-        final ClickListenerHandler clickListenerHandler = new ClickListenerHandler(computedInventories);
+    public void linkAll(@NotNull Map<String, BaseComponent[]> messageRegistry) {
+        final ClickListenerHandler clickListenerHandler = new ClickListenerHandler(computedInventories, messageRegistry);
         for (UnregisteredItem item : unregisteredItems) {
             item.eventInventory().register(item.builder(), clickListenerHandler.handle(item.actionData()), item.slots());
         }
