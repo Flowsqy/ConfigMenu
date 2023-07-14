@@ -6,7 +6,9 @@ import fr.flowsqy.configmenu.command.internal.ReloadCommand;
 import fr.flowsqy.configmenu.config.ConfigLoader;
 import fr.flowsqy.configmenu.inventory.InventoryLoader;
 import fr.flowsqy.configmenu.inventory.InventoryLocation;
+import fr.flowsqy.configmenu.message.MessageRegistryLoader;
 import fr.flowsqy.dynamiccommand.DynamicCommand;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -56,6 +58,9 @@ public class ConfigMenuPlugin extends JavaPlugin {
 
     public void load(boolean sync) {
         final ConfigLoader configLoader = new ConfigLoader();
+        final MessageRegistryLoader messageRegistryLoader = new MessageRegistryLoader();
+        messageRegistryLoader.load(configLoader, this, "message-registry.lang");
+        final Map<String, BaseComponent[]> messageRegistry = messageRegistryLoader.getMessages(getLogger());
         final String commandsFileName = "commands.yml";
         final CommandsLoader commandsLoader = new CommandsLoader();
         commandsLoader.load(configLoader, this, commandsFileName);

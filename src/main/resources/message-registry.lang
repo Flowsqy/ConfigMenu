@@ -1,0 +1,9 @@
+# Messages usable in clicked inventories
+
+# Each line that starts with a '#' is ignored
+# Each message line consist in an identifier usable in inventories and a value, separated by a '='
+# The value is the json format of a minecraft message
+
+# For example:
+# hello={"text":"Hello !"}
+# store the message "Hello !" with the id 'hello'
