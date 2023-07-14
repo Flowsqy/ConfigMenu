@@ -17,7 +17,7 @@ public class OpenInventoryExecutor implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            inventory.open(player, inventory.toString());
+            inventory.open(player);
         }
         return true;
     }
