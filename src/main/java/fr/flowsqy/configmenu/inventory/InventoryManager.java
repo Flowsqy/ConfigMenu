@@ -185,7 +185,7 @@ public class InventoryManager {
         public void handle(EventInventory inventory, String id, ItemBuilder item, List<Integer> slots) {
             // Parse path
             final InventoryLocation inventoryLocation = parseInventoryLocation(
-                    section.getString("items." + id + ".action"),
+                    section.getString("items." + id + ".inventory"),
                     logger,
                     rootFolder,
                     currentLocation.file()

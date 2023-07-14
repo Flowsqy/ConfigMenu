@@ -21,8 +21,8 @@
 # <inventory-path> is a valid inventory path (see below)
 # [alias-1] [alias-2] ... are all the aliases for the command (remove aliases section to set no aliases)
 # [permission] is the permission of the command (remove permission section to set no permission)
-# [permission-message] is the message that is shown when an user process the command without permission
-#   (Only set if there is a permission set, remove permission-message section to keep he default one)
+# [permission-message] is the message that is shown when a user process the command without permission
+#   (Only set if there is a permission set, remove permission-message section to keep the default one)
 #
 #
 #
@@ -56,7 +56,7 @@
 #          - [lore-2]
 #          - ...
 #        amount: [amount]
-#      action: [inventory-path]
+#      inventory: [inventory-path]
 #      slots:
 #        - <slot-1>
 #        - <slot-2>
@@ -70,7 +70,7 @@
 #          - [lore-2]
 #          - ...
 #        amount: [amount]
-#      action: [inventory-path]
+#      inventory: [inventory-path]
 #      slots:
 #        - <slot-1>
 #        - <slot-2>
